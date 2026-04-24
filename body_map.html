@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020617;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif
+    }
+
+    .root {
+      display: flex;
+      height: 100vh;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── LEFT: body figure ── */
+    .fig-panel {
+      flex: 0 0 300px;
+      padding: 20px 18px;
+      align-items: center;
+    }
+
+    .fig-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: radial-gradient(ellipse at 50% 30%, rgba(99, 102, 241, .12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .panel-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      align-self: flex-start;
+      font-weight: 700;
+    }
+
+    #bsvg {
+      width: 220px;
+      height: auto;
+      cursor: default;
+      display: block;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .6));
+    }
+
+    /* legend */
+    .legend {
+      margin-top: 16px;
+      width: 100%;
+      background: rgba(15, 23, 42, .5);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 12px;
+      padding: 14px 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .legend-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: #cbd5e1;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    /* ── MIDDLE: organ list ── */
+    .list-panel {
+      flex: 0 0 300px;
+      padding: 20px 16px;
+    }
+
+    .phead {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phead::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, .06)
+    }
+
+    .mode-wrap {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: rgba(0, 0, 0, .3);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    .mode-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: 7px;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      transition: all .2s;
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .mode-btn.active {
+      color: #000;
+      background: #e8ff47;
+      box-shadow: 0 0 20px rgba(232, 255, 71, .2);
+    }
+
+    .mode-btn:not(.active):hover {
+      color: #94a3b8;
+      background: rgba(255, 255, 255, .05)
+    }
+
+    .olist {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+
+    .olist::-webkit-scrollbar {
+      display: none
+    }
+
+    .oitem {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .25s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .oitem:hover {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(255, 255, 255, .12);
+      transform: translateX(3px);
+    }
+
+    .oitem.sel {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .15);
+      transform: translateX(3px);
+    }
+
+    .odot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .oname {
+      font-weight: 600;
+      font-size: 12px;
+      color: #e2e8f0;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .oscore {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 26px;
+      text-align: right;
+    }
+
+    .otrack {
+      width: 44px;
+      height: 3px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 2px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .ofill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .obadge {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bh {
+      color: #fca5a5;
+      background: rgba(252, 165, 165, .12);
+      box-shadow: inset 0 0 0 1px rgba(252, 165, 165, .25);
+    }
+
+    .bm {
+      color: #fdba74;
+      background: rgba(253, 186, 116, .12);
+      box-shadow: inset 0 0 0 1px rgba(253, 186, 116, .25);
+    }
+
+    .bl {
+      color: #86efac;
+      background: rgba(134, 239, 172, .12);
+      box-shadow: inset 0 0 0 1px rgba(134, 239, 172, .25);
+    }
+
+    /* ── RIGHT: detail ── */
+    .detail-panel {
+      flex: 1;
+      padding: 20px 24px;
+    }
+
+    .dcard {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .dcard::-webkit-scrollbar {
+      display: none
+    }
+
+    .dempty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .dempty-x {
+      width: 40px;
+      height: 40px;
+      position: relative;
+      opacity: .2;
+    }
+
+    .dempty-x::before,
+    .dempty-x::after {
+      content: '';
+      position: absolute;
+      background: #94a3b8;
+      border-radius: 2px;
+    }
+
+    .dempty-x::before {
+      width: 2px;
+      height: 100%;
+      left: calc(50% - 1px);
+      top: 0;
+    }
+
+    .dempty-x::after {
+      width: 100%;
+      height: 2px;
+      top: calc(50% - 1px);
+      left: 0;
+    }
+
+    .dempty-txt {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .d-organ {
+      font-weight: 800;
+      font-size: 28px;
+      color: #f8fafc;
+      margin-bottom: 4px;
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+
+    .d-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .d-score-big {
+      font-family: 'Space Mono', monospace;
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: -.03em;
+    }
+
+    .d-bar {
+      height: 5px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 3px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .d-barfill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .d-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .d-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 7px;
+      font-weight: 700;
+    }
+
+    .d-sec {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #475569;
+      margin: 18px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .d-sec::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .d-pair {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .06);
+      margin-bottom: 6px;
+      border-radius: 10px;
+      transition: all .2s;
+    }
+
+    .d-pair:hover {
+      background: rgba(255, 255, 255, .07);
+      transform: translateX(3px);
+    }
+
+    .d-pair-drugs {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .04em;
+      flex: 1;
+      font-weight: 700;
+    }
+
+    .d-pair-score {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      background: rgba(0, 0, 0, .3);
+      border-radius: 7px;
+    }
+
+    .d-fx-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .d-fx {
+      font-size: 11px;
+      font-weight: 500;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .08);
+      padding: 5px 13px;
+      border-radius: 20px;
+      transition: all .2s;
+    }
+
+    .d-fx:hover {
+      background: rgba(255, 255, 255, .09);
+      color: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .d-note {
+      background: rgba(15, 23, 42, .5);
+      border: 1px solid rgba(255, 255, 255, .06);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 4px;
+    }
+
+    .d-note-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .d-note-text {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* ── Tooltip ── */
+    #tip {
+      position: fixed;
+      background: rgba(15, 23, 42, .9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, .5);
+      padding: 8px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      color: #f8fafc;
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+      white-space: nowrap;
+    }
+
+    /* ══ SVG ORGAN STYLES ══ */
+    /* Base body fill */
+    .sk {
+      fill: rgba(30, 41, 59, .7);
+      stroke: rgba(148, 163, 184, .2);
+      stroke-width: 1;
+    }
+
+    .sk-inner {
+      fill: rgba(15, 23, 42, .5);
+      stroke: rgba(148, 163, 184, .12);
+      stroke-width: .8;
+    }
+
+    /* Organ zones */
+    .oz {
+      cursor: pointer;
+      transition: opacity .3s ease, filter .3s ease;
+    }
+
+    .oz.off {
+      opacity: .08;
+      filter: saturate(0);
+      cursor: default;
+    }
+
+    /* Risk-level animations */
+    @keyframes hi-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 12px var(--c)) brightness(1.3);
+      }
+
+      50% {
+        opacity: .75;
+        filter: drop-shadow(0 0 24px var(--c)) brightness(1.6);
+      }
+    }
+
+    @keyframes med-pulse {
+
+      0%,
+      100% {
+        opacity: .9;
+        filter: drop-shadow(0 0 7px var(--c)) brightness(1.15);
+      }
+
+      50% {
+        opacity: .65;
+        filter: drop-shadow(0 0 14px var(--c)) brightness(1.35);
+      }
+    }
+
+    @keyframes lo-pulse {
+
+      0%,
+      100% {
+        opacity: .8;
+        filter: drop-shadow(0 0 4px var(--c));
+      }
+
+      50% {
+        opacity: .5;
+        filter: drop-shadow(0 0 8px var(--c));
+      }
+    }
+
+    .oz.on-h {
+      opacity: 1;
+      animation: hi-pulse 1.6s ease-in-out infinite;
+    }
+
+    .oz.on-m {
+      opacity: .9;
+      animation: med-pulse 2.2s ease-in-out infinite;
+    }
+
+    .oz.on-l {
+      opacity: .8;
+      animation: lo-pulse 3s ease-in-out infinite;
+    }
+
+    .oz:hover:not(.off) {
+      opacity: 1 !important;
+      filter: brightness(1.7) drop-shadow(0 0 18px var(--c)) !important;
+      transform: scale(1.04);
+    }
+
+    .oz.glow {
+      opacity: 1 !important;
+      filter: drop-shadow(0 0 22px var(--c)) brightness(1.5) !important;
+      transform: scale(1.05) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="tip"></div>
+  <div class="root">
+
+    <!-- ═══ LEFT PANEL: Anatomical figure ═══ -->
+    <div class="fig-panel glass">
+      <div class="panel-title">Affected Regions</div>
+      <svg id="bsvg" viewBox="0 0 200 530" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Subtle body gradient -->
+          <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9" />
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+          </radialGradient>
+          <!-- Skin-tone gradient for outer body -->
+          <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#334155" />
+            <stop offset="100%" stop-color="#1e293b" />
+          </linearGradient>
+        </defs>
+
+        <!-- ── OUTER BODY SILHOUETTE (realistic proportions) ── -->
+        <!-- Head with skull-like dome -->
+        <ellipse fill="url(#skinGrad)" stroke="rgba(148,163,184,0.25)" stroke-width="1.2" cx="100" cy="40" rx="33"
+          ry="37" />
+        <!-- Face contour -->
+        <ellipse fill="rgba(30,41,59,0.3)" cx="100" cy="44" rx="24" ry="27" />
+
+        <!-- Neck -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.2)" stroke-width="1"
+          d="M90 74 Q89 90 90 96 L110 96 Q111 90 110 74 Z" />
+
+        <!-- Torso — tapered with realistic shoulder/waist/hip shape -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.2)" stroke-width="1.2" d="M62 96 Q50 102 48 118 L42 198 Q40 215 54 222
+         L72 230 L74 282 L126 282 L128 230 L146 222
+         Q160 215 158 198 L152 118 Q150 102 138 96 Z" />
+
+        <!-- Left upper arm -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.18)" stroke-width="1" d="M62 100 Q44 108 38 130 L30 192 Q28 207 37 212
+         L50 214 L56 200 L58 136 Z" />
+        <!-- Right upper arm -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.18)" stroke-width="1" d="M138 100 Q156 108 162 130 L170 192 Q172 207 163 212
+         L150 214 L144 200 L142 136 Z" />
+        <!-- Left forearm -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1"
+          d="M37 210 L30 282 Q28 296 37 300 L51 301 L57 214 Z" />
+        <!-- Right forearm -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1"
+          d="M163 210 L170 282 Q172 296 163 300 L149 301 L143 214 Z" />
+        <!-- Left hand -->
+        <ellipse fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1" cx="35" cy="312" rx="10"
+          ry="14" />
+        <!-- Right hand -->
+        <ellipse fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1" cx="165" cy="312" rx="10"
+          ry="14" />
+
+        <!-- Left thigh -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.18)" stroke-width="1"
+          d="M74 280 L68 394 Q66 408 77 413 L96 415 L102 282 Z" />
+        <!-- Right thigh -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.18)" stroke-width="1"
+          d="M126 280 L132 394 Q134 408 123 413 L104 415 L98 282 Z" />
+        <!-- Left shin -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1"
+          d="M77 411 L75 486 Q74 498 83 501 L96 500 L99 413 Z" />
+        <!-- Right shin -->
+        <path fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1"
+          d="M123 411 L125 486 Q126 498 117 501 L104 500 L101 413 Z" />
+        <!-- Left foot -->
+        <ellipse fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1" cx="85" cy="509" rx="16"
+          ry="9" />
+        <!-- Right foot -->
+        <ellipse fill="url(#skinGrad)" stroke="rgba(148,163,184,0.15)" stroke-width="1" cx="115" cy="509" rx="16"
+          ry="9" />
+
+        <!-- ── INTERNAL ANATOMY DETAILS (subtle inner lines) ── -->
+        <!-- Rib cage outline -->
+        <g opacity="0.12" fill="none" stroke="#94a3b8" stroke-width="0.8">
+          <path d="M72 112 Q100 108 128 112" />
+          <path d="M68 122 Q100 117 132 122" />
+          <path d="M66 132 Q100 127 134 132" />
+          <path d="M65 142 Q100 137 135 142" />
+          <path d="M65 152 Q100 147 135 152" />
+          <path d="M67 162 Q100 157 133 162" />
+          <path d="M70 172 Q100 167 130 172" />
+          <!-- Sternum -->
+          <line x1="100" y1="108" x2="100" y2="175" />
+          <!-- Spine -->
+          <line x1="100" y1="96" x2="100" y2="282" stroke-dasharray="3,3" opacity="0.5" />
+        </g>
+        <!-- Collar bones -->
+        <g opacity="0.18" fill="none" stroke="#94a3b8" stroke-width="1">
+          <path d="M84 98 Q70 100 56 108" />
+          <path d="M116 98 Q130 100 144 108" />
+        </g>
+        <!-- Hip bones -->
+        <g opacity="0.1" fill="none" stroke="#94a3b8" stroke-width="0.8">
+          <path d="M72 252 Q100 242 128 252" />
+          <path d="M70 268 Q100 258 130 268" />
+        </g>
+        <!-- Knee caps -->
+        <ellipse opacity="0.12" fill="none" stroke="#94a3b8" stroke-width="0.8" cx="82" cy="400" rx="9" ry="6" />
+        <ellipse opacity="0.12" fill="none" stroke="#94a3b8" stroke-width="0.8" cx="118" cy="400" rx="9" ry="6" />
+
+        <!-- ══ ORGAN ZONES (layered on top of skeleton) ══ -->
+
+        <!-- BRAIN / CNS — realistic brain shape -->
+        <path id="z-brain" class="oz off" data-organ="Brain/CNS" fill="#c847ff" style="--c:#c847ff" d="M78 28 Q76 16 88 12 Q96 8 100 14 Q104 8 112 12 Q124 16 122 28
+         Q130 30 130 40 Q130 50 120 54 Q116 60 100 60 Q84 60 80 54
+         Q70 50 70 40 Q70 30 78 28 Z" />
+
+        <!-- NERVOUS SYSTEM — spine cord (realistic dotted line with nodes) -->
+        <g id="z-nervous" class="oz off" data-organ="Nervous System" fill="#a855f7" style="--c:#a855f7">
+          <rect x="97.5" y="92" width="5" height="192" rx="2.5" />
+          <circle cx="100" cy="108" r="3.5" />
+          <circle cx="100" cy="126" r="3" />
+          <circle cx="100" cy="144" r="3" />
+          <circle cx="100" cy="162" r="3" />
+          <circle cx="100" cy="180" r="3" />
+          <circle cx="100" cy="198" r="3" />
+          <circle cx="100" cy="216" r="3" />
+          <circle cx="100" cy="234" r="2.5" />
+          <circle cx="100" cy="252" r="2.5" />
+          <circle cx="100" cy="270" r="2.5" />
+        </g>
+
+        <!-- LUNGS — left lobe (realistic teardrop shape) -->
+        <path id="z-lung-l" class="oz off" data-organ="Lungs" fill="#38bdf8" style="--c:#38bdf8" d="M62 114 Q54 118 53 136 Q52 156 56 170 Q60 180 70 183
+         Q80 185 88 180 L88 114 Q76 112 62 114 Z" />
+        <!-- LUNGS — right lobe -->
+        <path id="z-lung-r" class="oz off" data-organ="Lungs" fill="#38bdf8" style="--c:#38bdf8" d="M138 114 Q146 118 147 136 Q148 156 144 170 Q140 180 130 183
+         Q120 185 112 180 L112 114 Q124 112 138 114 Z" />
+
+        <!-- HEART — realistic left-displaced heart shape -->
+        <path id="z-heart" class="oz off" data-organ="Heart" fill="#ef4444" style="--c:#ef4444" d="M86 126 Q78 120 72 128 Q66 136 72 145
+         L100 170 L128 145 Q134 136 128 128
+         Q122 120 114 126 Q108 118 100 124
+         Q94 118 86 126 Z" />
+
+        <!-- Blood Pressure indicator (small aorta dot near heart) -->
+        <circle id="z-bp" class="oz off" data-organ="Blood Pressure" fill="#f97316" style="--c:#f97316" cx="100"
+          cy="122" r="7" />
+
+        <!-- LIVER — right upper abdomen, wedge-shaped -->
+        <path id="z-liver" class="oz off" data-organ="Liver" fill="#f97316" style="--c:#f97316" d="M102 186 Q124 184 138 196 Q140 208 136 220
+         Q126 226 112 224 Q104 220 102 210 Z" />
+
+        <!-- STOMACH/GI — curved sac left side -->
+        <path id="z-stomach" class="oz off" data-organ="Stomach/GI" fill="#22c55e" style="--c:#22c55e" d="M72 192 Q64 196 63 210 Q63 224 70 230
+         Q80 235 94 230 Q102 224 102 212 Q102 196 94 192 Z" />
+
+        <!-- KIDNEYS — left (right side of body) -->
+        <ellipse id="z-kid-l" class="oz off" data-organ="Kidneys" fill="#0ea5e9" style="--c:#0ea5e9" cx="66" cy="226"
+          rx="11" ry="16" />
+        <!-- KIDNEYS — right (left side of body) -->
+        <ellipse id="z-kid-r" class="oz off" data-organ="Kidneys" fill="#0ea5e9" style="--c:#0ea5e9" cx="134" cy="226"
+          rx="11" ry="16" />
+
+        <!-- PANCREAS/ENDOCRINE — curved bar behind stomach -->
+        <path id="z-pancreas" class="oz off" data-organ="Pancreas/Endocrine" fill="#eab308" style="--c:#eab308" d="M74 244 Q88 239 108 241 Q122 243 130 248
+         Q122 253 108 251 Q88 249 74 252 Z" />
+
+        <!-- INTESTINES/GI — coiled lower abdomen -->
+        <path id="z-intestines" class="oz off" data-organ="Intestines/GI" fill="#16a34a" style="--c:#16a34a" d="M66 258 Q60 266 62 278 Q64 290 74 296 L90 300 L110 300 L126 296
+         Q136 290 138 278 Q140 266 134 258
+         Q120 250 100 249 Q78 248 66 258 Z" />
+
+        <!-- BLOOD/COAGULATION — vascular system overlay on torso -->
+        <g id="z-blood" class="oz off" data-organ="Blood/Coagulation" fill="none" stroke="#ef4444" stroke-width="2.5"
+          style="--c:#ef4444" opacity="0.8">
+          <!-- Aorta -->
+          <line x1="100" y1="130" x2="100" y2="260" />
+          <!-- Major branches -->
+          <path d="M100 148 Q86 148 72 156" />
+          <path d="M100 148 Q114 148 128 156" />
+          <path d="M100 168 Q82 170 66 180" />
+          <path d="M100 168 Q118 170 134 180" />
+          <path d="M100 200 Q82 205 68 220" />
+          <path d="M100 200 Q118 205 132 220" />
+          <path d="M100 260 Q86 268 76 285" />
+          <path d="M100 260 Q114 268 124 285" />
+        </g>
+
+        <!-- MUSCLES — upper arms -->
+        <path id="z-muscle-arm-l" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899" d="M40 132 Q36 150 35 168 Q37 185 44 192 L51 200 L56 196
+         Q58 178 59 156 Q58 138 52 130 Z" />
+        <!-- Muscles — right upper arm -->
+        <path id="z-muscle-arm-r" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899" d="M160 132 Q164 150 165 168 Q163 185 156 192 L149 200 L144 196
+         Q142 178 141 156 Q142 138 148 130 Z" />
+        <!-- Muscles — left thigh -->
+        <path id="z-muscle-leg-l" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899" d="M74 288 L70 370 Q72 386 80 392 L90 394 L96 390
+         L98 296 Z" />
+        <!-- Muscles — right thigh -->
+        <path id="z-muscle-leg-r" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899" d="M126 288 L130 370 Q128 386 120 392 L110 394 L104 390
+         L102 296 Z" />
+        <!-- Muscles — left calf -->
+        <path id="z-muscle-calf-l" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899"
+          d="M78 416 L76 468 Q77 480 84 485 L92 486 L96 416 Z" />
+        <!-- Muscles — right calf -->
+        <path id="z-muscle-calf-r" class="oz off" data-organ="Muscles" fill="#ec4899" style="--c:#ec4899"
+          d="M122 416 L124 468 Q123 480 116 485 L108 486 L104 416 Z" />
+
+      </svg>
+
+      <!-- Risk Legend -->
+      <div class="legend">
+        <div class="legend-title">Risk Legend</div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#fca5a5;box-shadow:0 0 8px #fca5a5;"></div>
+          <div class="legend-text">High (&ge;70)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#fdba74;box-shadow:0 0 8px #fdba74;"></div>
+          <div class="legend-text">Moderate (40–69)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#86efac;box-shadow:0 0 8px #86efac;"></div>
+          <div class="legend-text">Low (&lt;40)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MIDDLE PANEL: Organ list ═══ -->
+    <div class="list-panel glass">
+      <div class="phead">Impact Scores</div>
+      <div class="mode-wrap">
+        <div class="mode-btn active" id="btn-cum" onclick="setMode('cum')">Cumulative</div>
+        <div class="mode-btn" id="btn-max" onclick="setMode('max')">Maximum</div>
+      </div>
+      <div class="olist" id="olist">
+        <div style="font-family:'Space Mono',monospace;font-size:8px;color:#1e293b;
+      letter-spacing:.12em;text-transform:uppercase;padding:10px;">Initialising...</div>
+      </div>
+    </div>
+
+    <!-- ═══ RIGHT PANEL: Detail card ═══ -->
+    <div class="detail-panel glass">
+      <div class="phead">Selected Organ</div>
+      <div id="dcard" class="dcard">
+        <div class="dempty">
+          <div class="dempty-x"></div>
+          <div class="dempty-txt">Click an organ or body region</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .root -->
+
+  <script>
+    // ── Data from Python ──────────────────────────────────────────────────────────
+    const RAW_ORGAN = window.ORGAN_DATA || {};   // cumulative totals from Python
+    const RAW_PAIRS = window.PAIR_DATA || [];
+
+    // ── Config ────────────────────────────────────────────────────────────────────
+    const COLORS = {
+      "Brain/CNS": "#c847ff",
+      "Nervous System": "#a855f7",
+      "Heart": "#ef4444",
+      "Blood Pressure": "#f97316",
+      "Lungs": "#38bdf8",
+      "Liver": "#f97316",
+      "Stomach/GI": "#22c55e",
+      "Intestines/GI": "#16a34a",
+      "Kidneys": "#0ea5e9",
+      "Pancreas/Endocrine": "#eab308",
+      "Blood/Coagulation": "#ef4444",
+      "Blood": "#ef4444",
+      "Muscles": "#ec4899",
+      "Systemic": "#64748b",
+    };
+
+    const ZONES = {
+      "Brain/CNS": ["z-brain"],
+      "Nervous System": ["z-nervous"],
+      "Heart": ["z-heart"],
+      "Blood Pressure": ["z-bp"],
+      "Lungs": ["z-lung-l", "z-lung-r"],
+      "Liver": ["z-liver"],
+      "Stomach/GI": ["z-stomach"],
+      "Intestines/GI": ["z-intestines"],
+      "Kidneys": ["z-kid-l", "z-kid-r"],
+      "Pancreas/Endocrine": ["z-pancreas"],
+      "Blood/Coagulation": ["z-blood"],
+      "Blood": ["z-blood"],
+      "Muscles": ["z-muscle-arm-l", "z-muscle-arm-r", "z-muscle-leg-l", "z-muscle-leg-r", "z-muscle-calf-l", "z-muscle-calf-r"],
+      "Systemic": [],
+    };
+
+    const NOTES = {
+      "Brain/CNS": "Central nervous system — altered consciousness, seizures, neurotransmitter disruption.",
+      "Nervous System": "Peripheral/autonomic effects — tremors, neuropathy, reflex and autonomic changes.",
+      "Heart": "Cardiac — rhythm disturbances, structural damage, circulatory compromise.",
+      "Blood Pressure": "Haemodynamic — hypo/hypertension, baroreceptor dysregulation.",
+      "Lungs": "Pulmonary — respiratory depression, bronchospasm, impaired gas exchange.",
+      "Liver": "Hepatic — CYP enzyme disruption, elevated transaminases, cholestasis.",
+      "Stomach/GI": "Gastric — mucosal erosion, altered acid secretion, motility changes.",
+      "Intestines/GI": "Lower GI — transit disruption, microbiome imbalance, mucosal inflammation.",
+      "Kidneys": "Renal — drug accumulation, electrolyte imbalance, direct nephrotoxicity.",
+      "Pancreas/Endocrine": "Endocrine — glucose dysregulation, insulin secretion, hormonal balance.",
+      "Blood/Coagulation": "Haemostasis — anticoagulant potentiation, bleeding or thrombotic risk.",
+      "Blood": "Haematological — cell line changes, coagulation pathway interference.",
+      "Muscles": "Skeletal muscle — myopathy, rhabdomyolysis risk, elevated CK.",
+      "Systemic": "Systemic — distributed effects across multiple organ systems.",
+    };
+
+    // ── State ─────────────────────────────────────────────────────────────────────
+    let mode = 'cum';
+    let selected = null;
+
+    // ── Score computation ─────────────────────────────────────────────────────────
+    function buildMap(m) {
+      const agg = {};
+      // Collect all pair-level scores
+      RAW_PAIRS.forEach(p => {
+        Object.entries(p.organ_scores || {}).forEach(([organ, score]) => {
+          if (!agg[organ]) agg[organ] = [];
+          agg[organ].push(Number(score));
+        });
+      });
+      // Merge with Python-side aggregate (may have organs not in pairs)
+      Object.entries(RAW_ORGAN).forEach(([organ, score]) => {
+        if (!agg[organ]) agg[organ] = [Number(score)];
+      });
+
+      const result = {};
+      Object.entries(agg).forEach(([organ, scores]) => {
+        if (m === 'cum') {
+          // CUMULATIVE: sum all pair contributions, cap at 100
+          result[organ] = Math.min(100, Math.round(scores.reduce((a, b) => a + b, 0)));
+        } else {
+          // MAXIMUM: single worst pair
+          result[organ] = Math.round(Math.max(...scores));
+        }
+      });
+      return result;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────────
+    function col(o) { return COLORS[o] || '#64748b'; }
+    function animCls(s) { return s >= 70 ? 'on-h' : s >= 40 ? 'on-m' : 'on-l'; }
+    function badgeCls(s) { return s >= 70 ? 'bh' : s >= 40 ? 'bm' : 'bl'; }
+    function badgeTxt(s) { return s >= 70 ? 'HIGH' : s >= 40 ? 'MOD' : 'LOW'; }
+    function dbadgeCls(s) { return s >= 70 ? 'bh' : s >= 40 ? 'bm' : 'bl'; }
+
+    // ── SVG management ────────────────────────────────────────────────────────────
+    function resetZones() {
+      document.querySelectorAll('.oz').forEach(el => {
+        el.className.baseVal = 'oz off';
+        el.style.filter = ''; el.style.transform = '';
+      });
+    }
+
+    function activateAll(map) {
+      resetZones();
+      Object.entries(map).forEach(([organ, score]) => {
+        (ZONES[organ] || []).forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.style.setProperty('--c', col(organ));
+          el.className.baseVal = 'oz ' + animCls(score);
+        });
+      });
+    }
+
+    function glowOne(organ, map) {
+      activateAll(map);
+      (ZONES[organ] || []).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className.baseVal = 'oz glow';
+        el.style.setProperty('--c', col(organ));
+      });
+    }
+
+    // ── Organ list ────────────────────────────────────────────────────────────────
+    function buildList(map) {
+      const el = document.getElementById('olist');
+      const sorted = Object.entries(map).sort((a, b) => b[1] - a[1]);
+      if (!sorted.length) {
+        el.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:8px;color:#1e293b;' +
+          'letter-spacing:.12em;text-transform:uppercase;padding:10px;">No data available</div>';
+        return;
+      }
+      el.innerHTML = sorted.map(([organ, score]) => {
+        const c = col(organ);
+        const glowStyle = score >= 70 ? `box-shadow:0 0 8px ${c}` : score >= 40 ? `box-shadow:0 0 5px ${c}` : '';
+        return `<div class="oitem${selected === organ ? ' sel' : ''}" data-organ="${organ}"
+              style="${selected === organ ? `border-left:3px solid ${c};padding-left:10px;` : ``}">
+      <div class="odot" style="background:${c};${glowStyle};"></div>
+      <span class="oname" title="${organ}">${organ}</span>
+      <span class="oscore" style="color:${c};">${score}</span>
+      <div class="otrack"><div class="ofill" style="width:${score}%;background:${c};"></div></div>
+      <span class="obadge ${badgeCls(score)}">${badgeTxt(score)}</span>
+    </div>`;
+      }).join('');
+      el.querySelectorAll('.oitem').forEach(item => {
+        item.addEventListener('click', () => select(item.getAttribute('data-organ'), map));
+      });
+    }
+
+    // ── Detail card ───────────────────────────────────────────────────────────────
+    function buildDetail(organ, map) {
+      const score = map[organ];
+      const dc = document.getElementById('dcard');
+      if (score === undefined) {
+        dc.innerHTML = '<div class="dempty"><div class="dempty-x"></div>' +
+          '<div class="dempty-txt">Select an organ</div></div>';
+        return;
+      }
+      const c = col(organ);
+      const pairs = RAW_PAIRS.filter(p => organ in (p.organ_scores || {}));
+      const allFx = [...new Set(pairs.flatMap(p => p.side_effects || []))].slice(0, 8);
+      const note = NOTES[organ] || 'Drug interaction may affect this organ system.';
+
+      const pairHTML = pairs.length ? `
+    <div class="d-sec">Contributing Drug Pairs</div>
+    ${pairs.map(p => `
+      <div class="d-pair">
+        <span class="d-pair-drugs">
+          <span style="color:${c};">${p.pair[0]}</span>
+          <span style="color:#334155;"> + </span>
+          <span style="color:#64748b;">${p.pair[1]}</span>
+        </span>
+        <span class="d-pair-score" style="color:${c};">${p.organ_scores[organ] || score}/100</span>
+      </div>`).join('')}` : '';
+
+      const fxHTML = allFx.length ? `
+    <div class="d-sec">Associated Side Effects</div>
+    <div class="d-fx-wrap">${allFx.map(e => `<span class="d-fx">${e}</span>`).join('')}</div>` : '';
+
+      dc.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <div class="d-sub">Organ System</div>
+      <div class="d-organ">${organ}</div>
+    </div>
+    <div class="d-score-big" style="color:${c};">${score}</div>
+    <div class="d-bar"><div class="d-barfill" style="width:${score}%;background:${c};"></div></div>
+    <div class="d-meta">
+      <span class="d-badge ${dbadgeCls(score)}" style="box-shadow:inset 0 0 0 1px ${c}30;">
+        ${badgeTxt(score)} RISK
+      </span>
+      <span style="font-family:'Space Mono',monospace;font-size:9px;color:#475569;font-weight:700;">
+        ${score}/100 · ${mode === 'cum' ? 'Cumulative' : 'Maximum'}
+      </span>
+      ${pairs.length ? `<span style="font-family:'Space Mono',monospace;font-size:9px;color:#475569;font-weight:700;">
+        ${pairs.length} pair(s)
+      </span>`: ''}
+    </div>
+    <div class="d-note">
+      <div class="d-note-label" style="color:${c};">Clinical Note</div>
+      <div class="d-note-text">${note}</div>
+    </div>
+    ${pairHTML}${fxHTML}`;
+    }
+
+    // ── Selection ─────────────────────────────────────────────────────────────────
+    function select(organ, map) {
+      selected = organ;
+      buildList(map);
+      buildDetail(organ, map);
+      glowOne(organ, map);
+      const item = document.querySelector(`.oitem[data-organ="${CSS.escape(organ)}"]`);
+      if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ── Mode toggle ───────────────────────────────────────────────────────────────
+    function setMode(m) {
+      mode = m;
+      document.getElementById('btn-cum').className = 'mode-btn' + (m === 'cum' ? ' active' : '');
+      document.getElementById('btn-max').className = 'mode-btn' + (m === 'max' ? ' active' : '');
+      const map = buildMap(m);
+      buildList(map);
+      activateAll(map);
+      if (selected && selected in map) select(selected, map);
+      else if (selected) { selected = null; buildList(map); }
+    }
+
+    // ── Tooltip ───────────────────────────────────────────────────────────────────
+    const tip = document.getElementById('tip');
+    document.querySelectorAll('.oz').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        const organ = el.getAttribute('data-organ');
+        const map = buildMap(mode);
+        const score = map[organ];
+        if (score === undefined) { tip.style.display = 'none'; return; }
+        tip.textContent = `${organ}  ·  ${score}/100  ·  ${badgeTxt(score)} RISK`;
+        tip.style.display = 'block';
+        tip.style.left = (e.clientX + 16) + 'px';
+        tip.style.top = (e.clientY - 32) + 'px';
+      });
+      el.addEventListener('mouseleave', () => tip.style.display = 'none');
+      el.addEventListener('click', () => {
+        const organ = el.getAttribute('data-organ');
+        const map = buildMap(mode);
+        if (organ in map) select(organ, map);
+      });
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────────
+    (function init() {
+      const map = buildMap('cum');
+      if (!Object.keys(map).length) {
+        document.getElementById('olist').innerHTML =
+          '<div style="font-family:\'Space Mono\',monospace;font-size:8px;color:#1e293b;' +
+          'letter-spacing:.12em;text-transform:uppercase;padding:10px;">No data — run analysis first</div>';
+        return;
+      }
+      activateAll(map);
+      buildList(map);
+      const top = Object.entries(map).sort((a, b) => b[1] - a[1])[0];
+      if (top) select(top[0], map);
+    })();
+  </script>
+</body>
+
+</html>
