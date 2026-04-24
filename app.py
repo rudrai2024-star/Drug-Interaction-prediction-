@@ -25,8 +25,15 @@ st.set_page_config(
 )
 
 import joblib
-from rdkit import Chem
-from rdkit.Chem import AllChem, Draw
+try:
+    from rdkit import Chem
+    from rdkit.Chem import AllChem, Draw
+    RDKIT_AVAILABLE = True
+except:
+    Chem = None
+    AllChem = None
+    Draw = None
+    RDKIT_AVAILABLE = False
 from itertools import combinations
 import sys, os
 import json
@@ -1129,6 +1136,8 @@ SEVERE_DDI_RULES = {
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
 def smiles_to_fp(smiles, n_bits=2048, radius=2):
     """Convert SMILES string to Morgan fingerprint. Returns None if invalid."""
+    if not RDKIT_AVAILABLE:
+        return None
     if not smiles or smiles in ["C", "N", "O", ""]:  # Skip invalid/placeholder SMILES
         return None
     try:
@@ -1142,6 +1151,8 @@ def smiles_to_fp(smiles, n_bits=2048, radius=2):
 
 def draw_molecule(smiles, size=(200, 160)):
     """Draw molecule structure from SMILES. Returns None if invalid."""
+    if not RDKIT_AVAILABLE:
+        return None
     if not smiles or smiles in ["C", "N", "O", ""]:
         return None
     try:
